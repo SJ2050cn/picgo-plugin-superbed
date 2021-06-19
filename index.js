@@ -48,6 +48,20 @@ function getUploaderConfig(ctx) {
 }
 
 /**
+ * 初始化配置
+ * @param {*} ctx 
+ */
+function initConfig(ctx) {
+  ctx.saveConfig({
+    'picBed.superbed': {
+      token: '',
+      username: '',
+      password: ''
+    }
+  })
+}
+
+/**
  * 登录
  * @param {*} ctx 
  * @returns {Promise<string>} Token
@@ -292,7 +306,13 @@ module.exports = ctx => {
       handle, 
       name: '聚合图床',
       config: () => {
-        config = ctx.getConfig('picBed.superbed')
+        let config = getUploaderConfig(ctx)
+
+        if (!config) {
+          initConfig(ctx)
+          config = getUploaderConfig(ctx)
+        }
+
         return [
           {
             name: "token",

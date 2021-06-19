@@ -1,6 +1,6 @@
 {
   "name": "picgo-plugin-superbed",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "PicGo 的 聚合图床上传插件",
   "main": "index.js",
   "keywords": ["picgo", "plugin"],
