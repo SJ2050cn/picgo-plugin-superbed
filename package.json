@@ -1,19 +1,19 @@
 {
   "name": "picgo-plugin-superbed",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "PicGo 的 聚合图床上传插件",
   "main": "index.js",
   "keywords": ["picgo", "plugin"],
-  "author": "Passkou",
+  "author": "MoyuScript",
   "license": "MIT",
   "scripts": {
     "dev": "node debugger.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Passkou/picgo-plugin-superbed.git"
+    "url": "https://github.com/MoyuScript/picgo-plugin-superbed.git"
   },
-  "homepage": "https://github.com/Passkou/picgo-plugin-superbed",
+  "homepage": "https://github.com/MoyuScript/picgo-plugin-superbed",
   "dependencies": {
     "crypto-js": "^4.0.0"
   },
