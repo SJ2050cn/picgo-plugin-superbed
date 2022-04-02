@@ -219,7 +219,7 @@ async function freeUpload(ctx) {
     // 设置图片 URL
     const ids = data.ids;
     for (let i = 0; i < ctx.output.length; i++) {
-      ctx.output[i].imgUrl = realLinks[ids[i]].url
+      ctx.output[i].imgUrl = realLinks[ids[i]][0]
     }
   } catch (err) {
     sendNotification('聚合图床上传图片失败', `${err.message}\n${err.stack}`)
