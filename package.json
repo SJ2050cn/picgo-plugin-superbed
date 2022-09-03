@@ -1,9 +1,12 @@
 {
   "name": "picgo-plugin-superbed",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "PicGo 的 聚合图床上传插件",
   "main": "index.js",
-  "keywords": ["picgo", "plugin"],
+  "keywords": [
+    "picgo",
+    "plugin"
+  ],
   "author": "MoyuScript",
   "license": "MIT",
   "scripts": {
