@@ -1,4 +1,5 @@
-const { MD5, enc } = require('crypto-js')
+const { MD5, enc } = require('crypto-js');
+const chunk = require('lodash.chunk');
 
 const isDebug = false;
 
@@ -115,7 +116,7 @@ async function requestUploadSetting(ctx, token) {
 
 /**
  * 制造表单数据
- * @param {{file: Buffer, filename: string}[]} images 
+ * @param {{buffer: Buffer, fileName: string}[]} images 
  * @param {string} token
  */
 async function makeFormData(ctx, images, token, ts) {
@@ -135,9 +136,9 @@ async function makeFormData(ctx, images, token, ts) {
 
   for (let i = 0; i < images.length; i++) {
     formData[`file${i}`] = {
-      value: images[i].file,
+      value: images[i].buffer,
       options: {
-        filename: images[i].filename
+        filename: images[i].fileName
       }
     };
   }
@@ -169,6 +170,31 @@ async function getRealUrl(ctx, forward, ids) {
   return data.results
 }
 
+function createImage({ buffer, fileName }) {
+  return {
+    buffer, fileName,
+  }
+}
+
+/**
+ * 上传图片
+ * @param {*} images 
+ * @param {*} uploadFn 异步上传函数，返回图片 URL 数组
+ * @returns 
+ */
+async function uploadImages(images, uploadFn) {
+  // 一次只能上传五个，分块上传
+  const chunkedImages = chunk(images, 5);
+  const urls = [];
+
+  for (const chunk of chunkedImages) {
+    await debug(`分块上传: ${JSON.stringify(chunk.map((c => ({ fileName: c.fileName, chunk: '[Chunk]' }))))}`);
+    urls.push(...await uploadFn(chunk));
+  }
+
+  return urls;
+}
+
 /**
  * 免费用户上传
  * @param {*} ctx 
@@ -181,7 +207,6 @@ async function freeUpload(ctx) {
 
     // 获取上传设置
     const uploadSettings = await requestUploadSetting(ctx, token)
-
     // 获取表单数据
     const images = ctx.output.map(item => {
       const body = item.buffer;
@@ -189,38 +214,43 @@ async function freeUpload(ctx) {
         body = Buffer.from(item.base64Image, 'base64')
       }
 
-      return {
-        file: body,
-        filename: `${item.fileName}`
-      }
-    })
-    const formData = await makeFormData(ctx, images, token, uploadSettings.ts)
-
-    // 上传
-    const resp = await ctx.Request.request({
-      method: 'POST',
-      url: uploadSettings.url,
-      formData,
-      headers: {
-        Cookie: `token=${token}`,
-        ...COMMON_HEADERS
-      }
+      return createImage({
+        buffer: body,
+        fileName: item.fileName,
+      })
     });
 
-    const data = JSON.parse(resp)
+    const urls = await uploadImages(images, async (images) => {
+      const formData = await makeFormData(ctx, images, token, uploadSettings.ts)
 
-    if (data.err !== 0) {
-      throw new Error(`上传图片失败：${data.msg}`)
-    }
+      // 上传
+      const resp = await ctx.Request.request({
+        method: 'POST',
+        url: uploadSettings.url,
+        formData,
+        headers: {
+          Cookie: `token=${token}`,
+          ...COMMON_HEADERS
+        }
+      });
+  
+      const data = JSON.parse(resp)
+  
+      if (data.err !== 0) {
+        throw new Error(`上传图片失败：${data.msg}`)
+      }
 
-    // 查询实际链接
-    const realLinks = await getRealUrl(ctx, data.forward, data.ids)
+      const ids = data.ids;
+      const realLinks = await getRealUrl(ctx, data.forward, ids);
 
-    // 设置图片 URL
-    const ids = data.ids;
-    for (let i = 0; i < ctx.output.length; i++) {
-      ctx.output[i].imgUrl = realLinks[ids[i]][1]
-    }
+      const urls = ids.map((id) => realLinks[id][1]);
+
+      return urls;
+    });
+
+    urls.forEach((url, i) => {
+      ctx.output[i].imgUrl = url;
+    })
   } catch (err) {
     sendNotification('聚合图床上传图片失败', `${err.message}\n${err.stack}`)
   }

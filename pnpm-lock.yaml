@@ -3,9 +3,11 @@ lockfileVersion: 5.4
 specifiers:
   crypto-js: ^4.0.0
   express: ^4.17.1
+  lodash.chunk: ^4.2.0
 
 dependencies:
   crypto-js: 4.1.1
+  lodash.chunk: 4.2.0
 
 devDependencies:
   express: 4.17.3
@@ -199,6 +201,10 @@ packages:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
     dev: true
+
+  /lodash.chunk/4.2.0:
+    resolution: {integrity: sha512-ZzydJKfUHJwHa+hF5X66zLFCBrWn5GeF28OHEr4WVWtNDXlQ/IjWKPBiikqKo2ne0+v6JgCgJ0GzJp8k8bHC7w==}
+    dev: false
 
   /media-typer/0.3.0:
     resolution: {integrity: sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=}
