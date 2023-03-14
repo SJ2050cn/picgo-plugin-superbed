@@ -284,26 +284,27 @@ async function payUploader(ctx) {
       }
     });
 
-    await debug('开始上传图片')
+    // 20230314: Modified by SJ2050
+    for (let i in ctx.output) {
+      await debug('开始上传图片')
 
-    const resp = await ctx.Request.request({
-      method: 'POST',
-      url: `https://api.superbed.cn/upload?token=${config.token}`,
-      formData
-    });
+      const resp = await ctx.Request.request({
+        method: 'POST',
+        url: `https://api.superbed.cn/upload?token=${config.token}`,
+        formData: {
+          file: formData[`file${i}`]
+        }
+      });
 
-    const data = JSON.parse(resp)
+      const data = JSON.parse(resp)
 
-    await debug(`上传图片完成：${resp}`)
+      await debug(`上传图片完成：${resp}`)
+      ctx.output[i].imgUrl = data.url;
 
-    if (data.err !== 0) {
-      throw new Error(`图片上传失败：${data.msg}`)
+      if (data.err !== 0) {
+        throw new Error(`图片上传失败：${data.msg}`)
+      }
     }
-
-    // 设置链接
-    Object.values(data.urls).forEach((u, i) => {
-      ctx.output[i].imgUrl = u;
-    })
   } catch (err) {
     sendNotification('聚合图床上传图片失败', String(err))
   }
